@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Danh sách người đã nhập tên</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; text-align: center; }
+  table { border-collapse: collapse; width: 100%; background: white; }
+  th, td { border: 1px solid #ddd; padding: 8px; }
+  th { background: #4CAF50; color: white; }
+  .back-btn { margin: 15px 0; display: inline-block; color: blue; cursor: pointer; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<h2>📋 Danh sách đã nhập tên (LocalStorage)</h2>
+<div class="back-btn" onclick="window.location.href='index.html'">⬅ Quay lại</div>
+
+<table id="nameTable">
+  <thead>
+    <tr><th>Thời gian</th><th>Tên</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+let ds = JSON.parse(localStorage.getItem("danhSachTen") || "[]");
+const tbody = document.querySelector("#nameTable tbody");
+
+if (ds.length === 0) {
+    tbody.innerHTML = "<tr><td colspan='2'>Chưa có ai nhập tên</td></tr>";
+} else {
+    ds.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${item.time}</td><td>${item.name}</td>`;
+        tbody.appendChild(tr);
+    });
+}
+</script>
+
+</body>
+</html>
