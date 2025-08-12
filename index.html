@@ -1,11 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>test</title>
+  <title>Xin chào!</title>
+  <style>
+    body {
+      background-color: #1e1e2f;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+    .typing {
+      border-right: 2px solid #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      animation: typing 4s steps(30, end) forwards, blink 0.7s infinite;
+    }
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 20ch }
+    }
+    @keyframes blink {
+      50% { border-color: transparent }
+    }
+  </style>
 </head>
 <body>
-  <h1>alo!</h1>
-  <p>dcm</p>
+  <h1 class="typing">Chào mừng bạn đến với thế giới của Trường!</h1>
 </body>
 </html>
