@@ -33,14 +33,64 @@
       font-size: 14px;
       font-family: monospace;
     }
+    #nameForm {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    input {
+      padding: 5px;
+      font-family: monospace;
+      font-size: 14px;
+      background-color: black;
+      color: lime;
+      border: 1px solid lime;
+      text-align: center;
+    }
+    button {
+      padding: 5px 10px;
+      font-family: monospace;
+      background-color: lime;
+      color: black;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: red;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <h1>⚠️ NGỦ ĐI ⚠️</h1>
-  <p>haha...<span id="dots"></span></p>
-  <div id="datetime"></div>
+  <!-- Form nhập tên -->
+  <div id="formContainer">
+    <h1>Nhập tên của bạn</h1>
+    <form id="nameForm">
+      <input type="text" id="nameInput" placeholder="Tên của bạn..." required>
+      <button type="submit">Xác nhận</button>
+    </form>
+  </div>
+
+  <!-- Nội dung troll -->
+  <div id="content" style="display:none;">
+    <h1 id="title">⚠️ NGỦ ĐI ⚠️</h1>
+    <p>haha...<span id="dots"></span></p>
+    <div id="datetime"></div>
+  </div>
 
   <script>
+    // Xử lý khi bấm xác nhận
+    document.getElementById("nameForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const ten = document.getElementById("nameInput").value.trim();
+      if (ten) {
+        document.getElementById("title").textContent = `⚠️ ${ten.toUpperCase()}, NGỦ ĐI ⚠️`;
+        document.getElementById("formContainer").style.display = "none";
+        document.getElementById("content").style.display = "block";
+      }
+    });
+
     // Hiệu ứng dấu chấm
     let dots = document.getElementById('dots');
     setInterval(() => {
