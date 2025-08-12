@@ -5,39 +5,26 @@
 <title>Đang bận!</title>
 <style>
   body {
-    background-color: black;
-    color: lime;
-    font-family: monospace;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    text-align: center;
+    background-color: black; color: lime; font-family: monospace;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100vh; text-align: center; padding: 20px;
   }
   h1 { color: red; animation: blink 1s infinite; }
   @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0;} 100% {opacity: 1;} }
-  #datetime {
-    position: fixed; bottom: 10px; right: 20px;
-    color: white; font-size: 14px; font-family: monospace;
-  }
-  #nameForm { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  #datetime { position: fixed; bottom: 10px; right: 20px; color: white; font-size: 14px; }
   input {
-    padding: 5px; font-family: monospace; font-size: 14px;
-    background-color: black; color: lime; border: 1px solid lime;
-    text-align: center;
+    padding: 5px; font-size: 14px; background: black; color: lime;
+    border: 1px solid lime; text-align: center;
   }
   button {
-    padding: 5px 10px; font-family: monospace;
-    background-color: lime; color: black; border: none; cursor: pointer;
+    padding: 5px 10px; background: lime; color: black; border: none; cursor: pointer;
   }
   button:hover { background-color: red; color: white; }
+  .link-btn { margin-top: 15px; color: cyan; text-decoration: underline; cursor: pointer; }
 </style>
 </head>
 <body>
 
-<!-- Form nhập tên -->
 <div id="formContainer">
   <h1>Nhập tên của bạn</h1>
   <form id="nameForm">
@@ -46,54 +33,47 @@
   </form>
 </div>
 
-<!-- Nội dung troll -->
 <div id="content" style="display:none;">
   <h1 id="title">⚠️ NGỦ ĐI ⚠️</h1>
   <p>haha...<span id="dots"></span></p>
   <div id="datetime"></div>
+  <div class="link-btn" onclick="window.location.href='list.html'">📋 Xem danh sách</div>
 </div>
 
 <script>
-// ====== CẤU HÌNH GOOGLE FORM ======
-var formURL = "https://docs.google.com/forms/d/1dd0_7z0B3SpTM6ORzIwgxD5kWhPfThA8xLmMh3IeXR0/formResponse";
-var entryID = "entry.839118082"; // ID câu hỏi "Tên"
-
-// Xử lý khi bấm xác nhận
+// Gửi tên vào LocalStorage
 document.getElementById("nameForm").addEventListener("submit", function(e) {
     e.preventDefault();
     const ten = document.getElementById("nameInput").value.trim();
-
     if (ten) {
-        // Gửi dữ liệu vào Google Form
-        var data = new FormData();
-        data.append(entryID, ten);
-        fetch(formURL, { method: "POST", body: data, mode: "no-cors" })
-          .then(() => console.log("Đã gửi tên vào Google Sheets"));
+        const now = new Date().toLocaleString('vi-VN');
+        let ds = JSON.parse(localStorage.getItem("danhSachTen") || "[]");
+        ds.push({ time: now, name: ten });
+        localStorage.setItem("danhSachTen", JSON.stringify(ds));
 
-        // Hiển thị nội dung troll
         document.getElementById("title").textContent = `⚠️ ${ten.toUpperCase()}, NGỦ ĐI ⚠️`;
         document.getElementById("formContainer").style.display = "none";
         document.getElementById("content").style.display = "block";
     }
 });
 
-// Hiệu ứng dấu chấm
+// Dấu chấm
 let dots = document.getElementById('dots');
 setInterval(() => {
   dots.textContent += '.';
   if (dots.textContent.length > 20) dots.textContent = '';
 }, 300);
 
-// Ngày và giờ thực tế
+// Giờ thực tế
 function updateDateTime() {
   const now = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long',
-                    day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-  document.getElementById('datetime').textContent = now.toLocaleString('vi-VN', options);
+  document.getElementById('datetime').textContent = now.toLocaleString('vi-VN', {
+    weekday: 'long', year: 'numeric', month: 'long',
+    day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
+  });
 }
 setInterval(updateDateTime, 1000);
 updateDateTime();
 </script>
-
 </body>
 </html>
