@@ -2,67 +2,119 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Danh sách người đã nhập tên</title>
+<title>Đang bận!</title>
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; text-align: center; }
-  table { border-collapse: collapse; width: 100%; background: white; }
-  th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-  th { background: #4CAF50; color: white; }
-  .back-btn { margin: 15px 0; display: inline-block; color: blue; cursor: pointer; text-decoration: underline; }
+  body {
+    background-color: black; color: lime; font-family: monospace;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100vh; text-align: center; padding: 20px;
+  }
+  h1 { color: red; animation: blink 1s infinite; }
+  @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0;} 100% {opacity: 1;} }
+  /* Đồng hồ góc phải hiển thị trên cả trang nhập tên và sau đó */
+  #datetime {
+    position: fixed; bottom: 10px; right: 20px;
+    color: white; font-size: 14px; z-index: 9999;
+  }
+  input {
+    padding: 5px; font-size: 14px; background: black; color: lime;
+    border: 1px solid lime; text-align: center;
+  }
+  button { padding: 5px 10px; background: lime; color: black; border: none; cursor: pointer; }
+  button:hover { background-color: red; color: white; }
 </style>
 </head>
 <body>
 
-<h2>📋 Danh sách đã nhập tên (Firebase)</h2>
-<div class="back-btn" onclick="window.location.href='index.html'">⬅ Quay lại</div>
+  <div id="formContainer">
+    <h1>Nhập tên của bạn</h1>
+    <form id="nameForm">
+      <input type="text" id="nameInput" placeholder="Tên của bạn..." required>
+      <button type="submit">Xác nhận</button>
+    </form>
+  </div>
 
-<table id="nameTable">
-  <thead>
-    <tr><th>Thời gian</th><th>Tên</th></tr>
-  </thead>
-  <tbody></tbody>
-</table>
+  <div id="content" style="display:none;">
+    <h1 id="title">💤NGỦ ĐI 💤</h1>
+    <p>...<span id="dots"></span></p>
+    <!-- ĐÃ BỎ đồng hồ khỏi đây để nó hiển thị cả trên trang nhập tên -->
+  </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, query, orderByChild, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  <!-- Đặt đồng hồ ngoài mọi khối để luôn hiển thị -->
+  <div id="datetime"></div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD962crs2BgxZIRQVYroUH4Ih4vL3VI_48",
-  authDomain: "hihi-3c544.firebaseapp.com",
-  databaseURL: "https://hihi-3c544-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "hihi-3c544",
-  storageBucket: "hihi-3c544.firebasestorage.app",
-  messagingSenderId: "799975042765",
-  appId: "1:799975042765:web:d23ead7aa29deffcc0c384",
-  measurementId: "G-W5FLH85R0R"
-};
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
-signInAnonymously(auth).catch(() => {});
+    const firebaseConfig = {
+      apiKey: "AIzaSyD962crs2BgxZIRQVYroUH4Ih4vL3VI_48",
+      authDomain: "hihi-3c544.firebaseapp.com",
+      databaseURL: "https://hihi-3c544-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "hihi-3c544",
+      storageBucket: "hihi-3c544.firebasestorage.app",
+      messagingSenderId: "799975042765",
+      appId: "1:799975042765:web:d23ead7aa29deffcc0c384",
+      measurementId: "G-W5FLH85R0R"
+    };
 
-const tbody = document.querySelector("#nameTable tbody");
-const q = query(ref(db, "names"), orderByChild("createdAt"));
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    signInAnonymously(auth).catch(console.error);
 
-onValue(q, (snapshot) => {
-  const list = [];
-  snapshot.forEach(child => list.push(child.val()));
-  list.sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
-  tbody.innerHTML = "";
-  if (list.length === 0) {
-    tbody.innerHTML = "<tr><td colspan='2'>Chưa có ai nhập tên</td></tr>";
-    return;
-  }
-  for (const item of list) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${item.time || ""}</td><td>${item.name || ""}</td>`;
-    tbody.appendChild(tr);
-  }
-});
-</script>
+    document.getElementById("nameForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const ten = document.getElementById("nameInput").value.trim();
+      if (!ten) return;
+
+      const payload = { name: ten, time: new Date().toLocaleString('vi-VN'), createdAt: Date.now() };
+
+      try {
+        await push(ref(db, "names"), payload);
+        document.getElementById("title").textContent = `⚠️ ${ten.toUpperCase()}, NGỦ ĐI ⚠️`;
+        document.getElementById("formContainer").style.display = "none";
+        document.getElementById("content").style.display = "block";
+      } catch (err) {
+        alert("Không lưu được dữ liệu. Thử lại nhé!");
+        console.error(err);
+      }
+    });
+
+    // Hiệu ứng chấm
+    let dots = document.getElementById('dots');
+    setInterval(() => {
+      dots.textContent += '.';
+      if (dots.textContent.length > 10) dots.textContent = '';
+    }, 300);
+
+    // Đồng hồ góc dưới bên phải – chạy ngay khi mở trang
+    function updateDateTime() {
+      const now = new Date();
+      document.getElementById('datetime').textContent = now.toLocaleString('vi-VN', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+  </script>
 
 </body>
+<!-- Nhạc nền -->
+<audio id="bgm" autoplay loop>
+  <source src="bai1.m4a" type="audio/mp4">
+  Trình duyệt của bạn không hỗ trợ thẻ audio.
+</audio>
+<script>
+  const bgm = document.getElementById('bgm');
+  bgm.volume = 1; // Âm lượng mặc định 100%
+
+  // Nếu autoplay bị chặn (trình duyệt yêu cầu tương tác), phát lại khi click
+  document.addEventListener('click', () => {
+    if (bgm.paused) bgm.play().catch(()=>{});
+  }, { once: true });
+</script>
+
 </html>
